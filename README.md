@@ -1,2 +1,2 @@
 # web-scrapping-amazon-wishlist
-project using puppeteer, cheerio and nodemailer to send product's wishlist from amazon
+project responsible to send wishlist's products from amazon store which are on sale
