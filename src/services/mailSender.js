@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-const sendMail = async (listName, messageHtml) => {
+const sendMail = async ({ to, subject, html }) => {
     var transport = nodemailer.createTransport({
         host: "smtp.mailtrap.io",
         port: 2525,
@@ -12,12 +12,12 @@ const sendMail = async (listName, messageHtml) => {
 
     const sender = await transport.sendMail({
         from: 'marlonklc script <marlonklc@script.com>',
-        to: 'marlon.klc@gmail.com',
-        subject: `wishlist sale: ${listName}`,
-        html: messageHtml
+        to,
+        subject,
+        html
     })
 
-    console.log('mail sent with id %s', sender.messageId);
+    return sender;
 }
 
 module.exports = {

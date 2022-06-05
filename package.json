@@ -4,15 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node --icu-data-dir=node_modules/full-icu src/index.js"
+    "start": "node --icu-data-dir=node_modules/full-icu src/index.js",
+    "dev": "nodemon --icu-data-dir=node_modules/full-icu src/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cheerio": "^1.0.0-rc.11",
+    "express": "^4.18.1",
     "full-icu": "^1.4.0",
     "nodemailer": "^6.7.5",
     "puppeteer": "^14.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.16"
   }
 }
