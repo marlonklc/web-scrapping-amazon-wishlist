@@ -1,5 +1,9 @@
 const AMAZON_BASE_URL = 'https://www.amazon.com.br';
-const ZIPCODE = ['95860', '000'];
+const ZIPCODE_DEFAULT = ['95860', '000'];
+const PRICE_DROP_TYPE = {
+    currency: 'CURRENCY',
+    percentage: 'PERCENTAGE'
+};
 
 const SELECTORS = {
     buttonOpenZipCodeModal: '#nav-global-location-popover-link',
@@ -15,6 +19,7 @@ const SELECTORS = {
 
 module.exports = {
     AMAZON_BASE_URL,
-    ZIPCODE,
-    SELECTORS
+    ZIPCODE_DEFAULT,
+    SELECTORS,
+    PRICE_DROP_TYPE
 };

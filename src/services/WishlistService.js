@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
-const { ZIPCODE: ZIPCODE_DEFAULT, SELECTORS } = require('../constants');
-const { createHtml, readWishlist } = require('../htmlProcessor');
-const { sendMail } = require('./mailSender');
+const { ZIPCODE_DEFAULT, SELECTORS, PRICE_DROP_TYPE } = require('../utils/constants');
+const { createHtml, readWishlist } = require('../utils/htmlProcessor');
+const { sendMail } = require('./MailService');
 
 async function fillZipCodeInfo(page, zipcode) {
     const zipcodeOrDefault = zipcode || ZIPCODE_DEFAULT; 
@@ -34,59 +34,77 @@ async function getProductsScrollingToTheEndOfPage(page) {
         });
 
         return {
-            listName: result.querySelector('#profile-list-name').innerHTML,
+            wishlistName: result.querySelector('#profile-list-name').innerHTML,
             html: result.querySelector('#g-items').innerHTML
         };
     });
 }
 
+function filterWishlistByParams({ items, minPromotionPercentage = 0, minPromotionValue = 0.0 }) {
+    return items.filter(item => {
+        if (item.productPriceDropType === PRICE_DROP_TYPE.currency) {
+            return item.productPriceDropValue > minPromotionValue;
+        } else {
+            return item.productPriceDropValue > minPromotionPercentage;
+        }
+    });
+}
+
+function sortWishlist(items) {
+    return items.sort((a, b) => {
+        if (a.productPriceDropType === b.productPriceDropType) {
+            return b.productPriceDropValue - a.productPriceDropValue;
+        } else if (a.productPriceDropType === PRICE_DROP_TYPE.currency && b.productPriceDropType === PRICE_DROP_TYPE.percentage) {
+            return 1;
+        } else {
+            return -1;
+        }
+    });
+}
+
 module.exports = {
 
-    async createReport({ url, zipcode, sendTo }) {
-        console.log('1... creating browser')
-        //const browser = await puppeteer.launch();
+    async createReport({ url, zipcode, sendTo, minPromotionPercentage, minPromotionValue }) {
+        console.log('creating browser...')
         const browser = await puppeteer.launch({
             args: ["--no-sandbox", "--disable-setuid-sandbox"]
         });
         const page = await browser.newPage();
-        console.log('browser created')
 
-        console.log('2... navigation to url %s', url);
+        console.log('navigation to url %s', url);
         await page.goto(url);
-        console.log('finished navigation');
 
-        console.log('3... filling zipcode on page')
+        console.log('filling zipcode on page...')
         await fillZipCodeInfo(page, zipcode);
-        console.log('finished filling zipcode')
         
-        console.log('4... reloading page');
+        console.log('reloading page...');
         await page.reload({ waitUntil: 'networkidle0' });
-        console.log('page reloaded');
 
-        console.log('5... scrolling page to the end of page');
-        const { listName, html } = await getProductsScrollingToTheEndOfPage(page);
+        console.log('scrolling page to the end of page...');
+        const { wishlistName, html } = await getProductsScrollingToTheEndOfPage(page);
         console.log('scroll finished');
-        //const htmlText = await page.evaluate(() => document.querySelector('#g-items').innerHTML);
+        //const html = await page.evaluate(() => document.querySelector('#g-items').innerHTML);
         
-        console.log('6... reading wishlist to get items');
+        console.log('reading wishlist to get items...');
         const items = readWishlist(html);
-        console.log('finished reading');
 
-        console.log('7... creating html report to send email');
-        const messageHtml = createHtml(listName, items);
-        console.log('html report created');
+        console.log('filtering and sorting wishlist items...');
+        const itemsFiltered = filterWishlistByParams({items, minPromotionPercentage, minPromotionValue});
+        sortWishlist(itemsFiltered);
 
-        console.log('8... sending email');
+        console.log('creating html report to send email...');
+        const messageHtml = createHtml(wishlistName, itemsFiltered);
+
+        console.log('sending email...');
         const sendMailResponse = sendMail({
             to: sendTo,
-            subject: `wishlist sale: ${listName}`, 
+            subject: `wishlist sale: ${wishlistName}`, 
             html: messageHtml
         });
         console.log('email sent with id %s', (await sendMailResponse).messageId);
 
-        console.log('9... closing browser');
+        console.log('closing browser...');
         await browser.close();
-        console.log('browser closed');
     },
 
 };

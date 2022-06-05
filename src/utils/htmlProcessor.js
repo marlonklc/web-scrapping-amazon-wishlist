@@ -1,6 +1,6 @@
 const cheerio = require('cheerio');
-const { formatCurrency } = require('./utils');
-const { AMAZON_BASE_URL, SELECTORS } = require('./constants');
+const { formatCurrency, convertCurrencyOnFloat } = require('./utils');
+const { AMAZON_BASE_URL, SELECTORS, PRICE_DROP_TYPE } = require('./constants');
 
 const createHtml = (listName, items) => {
     const $ = cheerio.load('<style> * { font-family: sans-serif; } .content-table { border-collapse: collapse; margin: 25px 0; font-size: 0.9em; min-width: 400px; border-radius: 5px 5px 0 0; overflow: hidden; box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); } .content-table thead tr { background-color: #009879; color: #ffffff; text-align: left; font-weight: bold; } .content-table th, .content-table td { padding: 12px 15px; } .content-table tbody tr { border-bottom: 1px solid #dddddd; } .content-table tbody tr:nth-of-type(even) { background-color: #f3f3f3; }</script>');
@@ -20,12 +20,22 @@ const createHtml = (listName, items) => {
     });
     
     return $.html();
+};
+
+function getPriceDropValue(productPriceDropType, productPriceDropText) {
+    if (productPriceDropType === PRICE_DROP_TYPE.currency) {
+        const index = productPriceDropText.lastIndexOf('R$');
+        const valueOfPromotion = convertCurrencyOnFloat(productPriceDropText.substring(index));
+        return valueOfPromotion;
+    } else {
+        return parseInt(productPriceDropText.slice(-3));
+    }
 }
 
 const readWishlist = (htmlText) => {
     const $ = cheerio.load(htmlText);
 
-    const items = $(SELECTORS.wishlistItemDiv).map(function () {
+    let items = $(SELECTORS.wishlistItemDiv).map(function () {
         const $element = $(this);
         const itemId = $element.attr()['data-itemid'];
         const productPrice = parseFloat($element.attr()['data-price']);
@@ -36,23 +46,23 @@ const readWishlist = (htmlText) => {
 
         const priceDropElement = $element.find(SELECTORS.wishlistItemPriceDrop(itemId));
         const productPriceDropText = priceDropElement.text().trim();
+        const productPriceDropType = productPriceDropText.includes('R$') ? PRICE_DROP_TYPE.currency : PRICE_DROP_TYPE.percentage;
+        const productPriceDropValue = getPriceDropValue(productPriceDropType, productPriceDropText);
         const productPriceOriginalValueText = $element.find(SELECTORS.itemPriceDropText).text().trim();
 
         if (!productPriceDropText) return;
 
         return {
-            itemId, productPrice, productPriceDropText, productPriceOriginalValueText, productName, productLink, 
+            itemId, 
+            productPrice, 
+            productPriceDropText,
+            productPriceDropType,
+            productPriceDropValue,
+            productPriceOriginalValueText, 
+            productName, 
+            productLink, 
         }
     }).get();
-
-    items.sort((a, b) => {
-        const priceA = parseInt(a.productPriceDropText.slice(-3));
-        const priceB = parseInt(b.productPriceDropText.slice(-3));
-
-        if (isNaN(priceA) || isNaN(priceB)) return 0;
-
-        return priceB - priceA;
-    });
 
     return items;
 };

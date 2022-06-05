@@ -12,7 +12,13 @@ module.exports = {
 
     async createReport(req, res) {
         try {
-            const { url, sendTo, zipcode } = req.body;
+            console.log('[start] POST /wishlist-report >-------------------------------------------')
+            const { url, 
+                sendTo, 
+                zipcode, 
+                minPromotionValue = 0.0, 
+                minPromotionPercentage = 0 
+            } = req.body;
 
             if (!url) {
                 return res.status(400)
@@ -29,8 +35,9 @@ module.exports = {
                     .json(message('zipcode must have 2 elements. ex: [\'95860\', \'000\']'));
             }
 
-            await service.createReport({ url, zipcode, sendTo });
+            await service.createReport({ url, zipcode, sendTo, minPromotionPercentage, minPromotionValue });
 
+            console.log('[end] POST /wishlist-report >-------------------------------------------')
             return res.json(message('Executed with success.'));
         } catch (ex) {
             console.log(ex);
