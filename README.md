@@ -1,6 +1,8 @@
 # web-scrapping-amazon-wishlist
 I made this project to help me monitoring and alert myself when some products in my amazon's wishlist are on sale.
 
+PS: Feel free to comment or forked this project to your country context.
+
 ### What was it used on this project ?
 For this personal project I did use of four principal libs/frameworks:
 - express: It made it easier for me provides APIs to trigger the job and running this project as a service.  
@@ -8,7 +10,7 @@ For this personal project I did use of four principal libs/frameworks:
 - cheerio: It provides a simple way to navigate or create a DOM returned by puppeteer.
 - nodemailer: The principal nodejs' lib to send mail using SMTP servers.
 
-### How to run and how this works ?
+### How to run and what will this produce ?
 1. The first step is a little laborious. You need a smtp server to send the mail. You can provides for your own or you can use from gmail servers. I will try to simplify that step, but you can check those links to help you:
 - https://nodemailer.com/usage/using-gmail/
 - https://support.google.com/mail/answer/185833?hl=en
@@ -19,7 +21,9 @@ SMTP_USER=<USER_EMAIL> --> your email
 SMTP_PASS=<PASSWORD> ----> put the app password created before.
 ```
 
-2. You need to send a http request and define some params:
+2. Go to project folder and run `npm install && npm start`. It will install dependencies and run the project.
+
+3. You need to send a http request (using postman, insomnia or curl) and define some params:
 - POST to http://localhost:3000/wishlist-report
 - body (json): 
 ```
@@ -32,5 +36,5 @@ SMTP_PASS=<PASSWORD> ----> put the app password created before.
 }
 ```
 
-3. After a few seconds, you will recive an email like that image below:
+4. After a few seconds, you will recive an email like that image below:
 ![image](https://user-images.githubusercontent.com/9343013/173192258-07b585a4-fe4c-48f7-aa7c-af378213975d.png)
