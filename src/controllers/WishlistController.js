@@ -1,7 +1,6 @@
 const service = require('../services/WishlistService');
 
 const message = message => {
-    console.log(message);
     return {
         message,
         timestamp: new Date()
@@ -35,9 +34,8 @@ module.exports = {
                     .json(message('zipcode must have 2 elements. ex: [\'95860\', \'000\']'));
             }
 
-            await service.createReport({ url, zipcode, sendTo, minPromotionPercentage, minPromotionValue });
+            service.createReport({ url, zipcode, sendTo, minPromotionPercentage, minPromotionValue });
 
-            console.log('[end] POST /wishlist-report >-------------------------------------------')
             return res.json(message('Executed with success.'));
         } catch (ex) {
             console.log(ex);
