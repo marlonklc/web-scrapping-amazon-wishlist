@@ -42,5 +42,34 @@ module.exports = {
             return res.status(500)
                 .json(message('Unexpected error happens: ' + ex));
         }
+    },
+
+    async exportReport(req, res) {
+        try {
+            console.log('[start] POST /wishlist-report/export >-------------------------------------------')
+            const { url, 
+                zipcode, 
+                minPromotionValue = 0.0, 
+                minPromotionPercentage = 0 
+            } = req.body;
+
+            if (!url) {
+                return res.status(400)
+                    .json(message('url cannot be empty. ex: https://www.amazon.com.br/hz/wishlist/ls/37PMJQL2BBFJ6'));
+            }
+
+            if (!zipcode || zipcode.length != 2) {
+                return res.status(400)
+                    .json(message('zipcode must have 2 elements. ex: [\'95860\', \'000\']'));
+            }
+
+            const result = await service.exportReport({ url, zipcode, minPromotionPercentage, minPromotionValue });
+
+            return res.json(result);
+        } catch (ex) {
+            console.log(ex);
+            return res.status(500)
+                .json(message('Unexpected error happens: ' + ex));
+        }
     }
 };

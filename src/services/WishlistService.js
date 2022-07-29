@@ -42,6 +42,8 @@ async function getProductsScrollingToTheEndOfPage(page) {
 
 function filterWishlistByParams({ items, minPromotionPercentage = 0, minPromotionValue = 0.0 }) {
     return items.filter(item => {
+        if (item.productPriceDropText === '' && isNaN(item.productPriceDropValue)) return true;
+
         if (item.productPriceDropType === PRICE_DROP_TYPE.currency) {
             return item.productPriceDropValue > minPromotionValue;
         } else {
@@ -86,7 +88,7 @@ module.exports = {
         //const html = await page.evaluate(() => document.querySelector('#g-items').innerHTML);
         
         console.log('reading wishlist to get items...');
-        const items = readWishlist(html);
+        const items = readWishlist({ html, minPromotionPercentage, minPromotionValue });
 
         console.log('filtering and sorting wishlist items...');
         const itemsFiltered = filterWishlistByParams({items, minPromotionPercentage, minPromotionValue});
@@ -105,6 +107,39 @@ module.exports = {
 
         console.log('closing browser...');
         await browser.close();
+    },
+
+    async exportReport({ url, zipcode, minPromotionPercentage, minPromotionValue }) {
+        console.log('creating browser...')
+        const browser = await puppeteer.launch({
+            args: ["--no-sandbox", "--disable-setuid-sandbox"]
+        });
+        const page = await browser.newPage();
+
+        console.log('navigation to url %s', url);
+        await page.goto(url);
+
+        console.log('filling zipcode on page...')
+        await fillZipCodeInfo(page, zipcode);
+        
+        console.log('reloading page...');
+        await page.reload({ waitUntil: 'networkidle0' });
+
+        console.log('scrolling page to the end of page...');
+        const { html } = await getProductsScrollingToTheEndOfPage(page);
+        console.log('scroll finished');
+        
+        console.log('reading wishlist to get items...');
+        const items = readWishlist({ html, minPromotionPercentage, minPromotionValue });
+
+        console.log('filtering and sorting wishlist items...');
+        const itemsFiltered = filterWishlistByParams({items, minPromotionPercentage, minPromotionValue});
+        sortWishlist(itemsFiltered);
+
+        console.log('closing browser...');
+        browser.close();
+
+        return itemsFiltered;
     },
 
 };

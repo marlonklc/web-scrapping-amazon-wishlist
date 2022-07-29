@@ -32,8 +32,10 @@ function getPriceDropValue(productPriceDropType, productPriceDropText) {
     }
 }
 
-const readWishlist = (htmlText) => {
-    const $ = cheerio.load(htmlText);
+const readWishlist = ({ html, minPromotionPercentage, minPromotionValue }) => {
+    const $ = cheerio.load(html);
+
+    const mustReturnOnSaleProducts = !!minPromotionPercentage && !!minPromotionValue;
 
     let items = $(SELECTORS.wishlistItemDiv).map(function () {
         const $element = $(this);
@@ -50,7 +52,7 @@ const readWishlist = (htmlText) => {
         const productPriceDropValue = getPriceDropValue(productPriceDropType, productPriceDropText);
         const productPriceOriginalValueText = $element.find(SELECTORS.itemPriceDropText).text().trim();
 
-        if (!productPriceDropText) return;
+        if (!productPriceDropText && mustReturnOnSaleProducts) return;
 
         return {
             itemId, 

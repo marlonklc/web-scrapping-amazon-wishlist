@@ -10,6 +10,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/wishlist-report', WishlistController.createReport);
+app.post('/wishlist-report/export', WishlistController.exportReport);
 
 app.listen(PORT, () => {
     console.log('server up...')
