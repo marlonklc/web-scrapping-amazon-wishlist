@@ -3,7 +3,7 @@ const WishlistController = require('./controllers/WishlistController');
 const app = express();
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT_APP || 3000;
 
 app.get('/', (req, res) => {
     return res.json({ status: 'UP' });
