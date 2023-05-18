@@ -49,9 +49,6 @@ ENV NODE_ENV=production
 # Copying this first prevents re-running npm install on every code change.
 COPY package.json ./
 
-# remove file to avoid erros on deploy
-rm -f package-lock.json
-
 # Install production dependencies.
 # If you add a package-lock.json, speed your build by switching to 'npm ci'.
 # RUN npm ci --only=production
