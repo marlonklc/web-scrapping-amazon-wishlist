@@ -1,4 +1,4 @@
-FROM node:16-slim
+FROM node:14-slim
 
 # Create and change to the app directory.
 WORKDIR /usr/src/app
@@ -34,9 +34,6 @@ RUN apt-get update \
 RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
     && chown -R pptruser:pptruser /home/pptruser
-    # && chown -R pptruser:pptruser /usr/src/app/node_modules \
-    # && chown -R pptruser:pptruser /usr/src/app/package.json \
-    # && chown -R pptruser:pptruser /usr/src/app/package-lock.json
 
 # Run everything after as non-privileged user.
 USER pptruser
@@ -47,17 +44,17 @@ ENV NODE_ENV=production
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure copying both package.json AND package-lock.json (when available).
 # Copying this first prevents re-running npm install on every code change.
-COPY package.json ./
+COPY package*.json ./
 
 # Install production dependencies.
 # If you add a package-lock.json, speed your build by switching to 'npm ci'.
 # RUN npm ci --only=production
-RUN npm install --only=production --legacy-peer-deps --package-lock-only
+RUN npm install --only=production
 
 ## give permissions after install all dependencies
 RUN chown -R pptruser:pptruser /usr/src/app/node_modules \
-    && chown -R pptruser:pptruser /usr/src/app/package.json
-    #&& chown -R pptruser:pptruser /usr/src/app/package-lock.json
+    && chown -R pptruser:pptruser /usr/src/app/package.json \
+    && chown -R pptruser:pptruser /usr/src/app/package-lock.json
 
 # Copy local code to the container image.
 COPY . ./
