@@ -52,7 +52,7 @@ COPY package*.json ./
 # Install production dependencies.
 # If you add a package-lock.json, speed your build by switching to 'npm ci'.
 # RUN npm ci --only=production
-RUN npm install --only=production
+RUN npm install --only=production --legacy-peer-deps
 
 ## give permissions after install all dependencies
 RUN chown -R pptruser:pptruser /usr/src/app/node_modules \
