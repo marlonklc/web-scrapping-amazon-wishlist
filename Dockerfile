@@ -47,7 +47,10 @@ ENV NODE_ENV=production
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure copying both package.json AND package-lock.json (when available).
 # Copying this first prevents re-running npm install on every code change.
-COPY package*.json ./
+COPY package.json ./
+
+# remove file to avoid erros on deploy
+rm -f package-lock.json
 
 # Install production dependencies.
 # If you add a package-lock.json, speed your build by switching to 'npm ci'.
@@ -57,7 +60,7 @@ RUN npm install --only=production --legacy-peer-deps
 ## give permissions after install all dependencies
 RUN chown -R pptruser:pptruser /usr/src/app/node_modules \
     && chown -R pptruser:pptruser /usr/src/app/package.json \
-    && chown -R pptruser:pptruser /usr/src/app/package-lock.json
+    #&& chown -R pptruser:pptruser /usr/src/app/package-lock.json
 
 # Copy local code to the container image.
 COPY . ./
