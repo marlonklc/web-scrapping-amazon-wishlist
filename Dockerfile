@@ -35,9 +35,6 @@ RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
     && chown -R pptruser:pptruser /home/pptruser
 
-# Run everything after as non-privileged user.
-USER pptruser
-
 # Set container environment variable.
 ENV NODE_ENV=production
 
@@ -58,6 +55,9 @@ RUN chown -R pptruser:pptruser /usr/src/app/node_modules \
 
 # Copy local code to the container image.
 COPY . ./
+
+# Run everything after as non-privileged user.
+USER pptruser
 
 ## its recommends on puppetter documentation
 ##CMD ["google-chrome-stable"]
