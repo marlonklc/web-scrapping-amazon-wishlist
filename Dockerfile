@@ -33,10 +33,10 @@ RUN apt-get update \
     # same layer as npm install to keep re-chowned files from using up several hundred MBs more space
 RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
-    && chown -R pptruser:pptruser /home/pptruser \
-    && chown -R pptruser:pptruser /usr/src/app/node_modules \
-    && chown -R pptruser:pptruser /usr/src/app/package.json \
-    && chown -R pptruser:pptruser /usr/src/app/package-lock.json
+    && chown -R pptruser:pptruser /home/pptruser
+    # && chown -R pptruser:pptruser /usr/src/app/node_modules \
+    # && chown -R pptruser:pptruser /usr/src/app/package.json \
+    # && chown -R pptruser:pptruser /usr/src/app/package-lock.json
 
 # Run everything after as non-privileged user.
 USER pptruser
@@ -53,6 +53,11 @@ COPY package*.json ./
 # If you add a package-lock.json, speed your build by switching to 'npm ci'.
 # RUN npm ci --only=production
 RUN npm install --only=production
+
+## give permissions after install all dependencies
+RUN chown -R pptruser:pptruser /usr/src/app/node_modules \
+    && chown -R pptruser:pptruser /usr/src/app/package.json \
+    && chown -R pptruser:pptruser /usr/src/app/package-lock.json
 
 # Copy local code to the container image.
 COPY . ./
