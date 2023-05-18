@@ -59,7 +59,7 @@ RUN npm install --only=production --legacy-peer-deps
 
 ## give permissions after install all dependencies
 RUN chown -R pptruser:pptruser /usr/src/app/node_modules \
-    && chown -R pptruser:pptruser /usr/src/app/package.json \
+    && chown -R pptruser:pptruser /usr/src/app/package.json
     #&& chown -R pptruser:pptruser /usr/src/app/package-lock.json
 
 # Copy local code to the container image.
