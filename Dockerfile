@@ -51,7 +51,7 @@ COPY . ./
 USER pptruser
 
 ## its recommends on puppetter documentation
-CMD ["google-chrome-stable"]
+#CMD ["google-chrome-stable"]
 
 # Run the job on container.
-# CMD [ "npm", "run", "start" ]
+CMD [ "npm", "run", "start" ]
