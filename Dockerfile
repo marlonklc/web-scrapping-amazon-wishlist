@@ -39,7 +39,7 @@ COPY package*.json ./
 RUN npm ci --only=production \
     && groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
-    && chown -R pptruser:pptruser /home/pptruser
+    && chown -R pptruser:pptruser /home/pptruser \
     && chown -R pptruser:pptruser /usr/src/app/node_modules \
     && chown -R pptruser:pptruser /usr/src/app/package.json \
     && chown -R pptruser:pptruser /usr/src/app/package-lock.json
