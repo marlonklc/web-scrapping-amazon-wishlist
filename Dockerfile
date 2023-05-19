@@ -24,16 +24,7 @@ RUN apt-get update \
 # Uncomment to skip the chromium download when installing puppeteer. If you do,
 # you'll need to launch puppeteer with:
 #     browser.launch({executablePath: 'google-chrome-stable'})
-# ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
-
-# Install puppeteer so it's available in the container. (if necessary)
-#RUN npm init -y &&  \
-    #npm i puppeteer \
-    # Add user so we don't need --no-sandbox.
-    # same layer as npm install to keep re-chowned files from using up several hundred MBs more space
-RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
-    && mkdir -p /home/pptruser/Downloads \
-    && chown -R pptruser:pptruser /home/pptruser
+#ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
 # Set container environment variable.
 ENV NODE_ENV=production
@@ -45,11 +36,11 @@ COPY package*.json ./
 
 # Install production dependencies.
 # If you add a package-lock.json, speed your build by switching to 'npm ci'.
-# RUN npm ci --only=production
-RUN npm install --only=production
-
-## give permissions after install all dependencies
-RUN chown -R pptruser:pptruser /usr/src/app/node_modules \
+RUN npm ci --only=production
+    && groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
+    && mkdir -p /home/pptruser/Downloads \
+    && chown -R pptruser:pptruser /home/pptruser
+    && chown -R pptruser:pptruser /usr/src/app/node_modules \
     && chown -R pptruser:pptruser /usr/src/app/package.json \
     && chown -R pptruser:pptruser /usr/src/app/package-lock.json
 
@@ -60,7 +51,7 @@ COPY . ./
 USER pptruser
 
 ## its recommends on puppetter documentation
-##CMD ["google-chrome-stable"]
+CMD ["google-chrome-stable"]
 
 # Run the job on container.
-CMD [ "npm", "run", "start" ]
+# CMD [ "npm", "run", "start" ]
