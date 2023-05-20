@@ -13,6 +13,7 @@ const SELECTORS = {
     buttonZipCodeSubmit: '#GLUXZipUpdate-announce',
     wishlistItemDiv: '.g-item-sortable',
     itemPriceDropText: '.itemPriceDrop span:last-child',
+    itemImage: (id) => `#itemImage_${id} a img`,
     wishlistItemName: (id) => `#itemName_${id}`,
     wishlistItemPriceDrop: (id) => `#itemPriceDrop_${id}`,
 };

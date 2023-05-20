@@ -11,6 +11,7 @@ const createHtml = (listName, items) => {
         $('<tr>').appendTo('table')
 
         $('table tr:last-child')
+            .append(`<td><img height="80px" src="${i.productImageLink}"/></td>`)
             .append(`<td>${i.productName}</td>`)
             .append(`<td>${formatCurrency(i.productPrice)}</td>`)
             .append(`<td><b>${i.productPriceDropText}</b></td>`)
@@ -45,6 +46,7 @@ const readWishlist = ({ html, minPromotionPercentage, minPromotionValue }) => {
         const linkElement = $element.find(SELECTORS.wishlistItemName(itemId));
         const productName = linkElement.text().trim();
         const productLink = AMAZON_BASE_URL + linkElement.attr()['href'];
+        const productImageLink = $element.find(SELECTORS.itemImage(itemId)).attr()['src'];
 
         const priceDropElement = $element.find(SELECTORS.wishlistItemPriceDrop(itemId));
         const productPriceDropText = priceDropElement.text().trim();
@@ -62,7 +64,8 @@ const readWishlist = ({ html, minPromotionPercentage, minPromotionValue }) => {
             productPriceDropValue,
             productPriceOriginalValueText, 
             productName, 
-            productLink, 
+            productLink,
+            productImageLink,
         }
     }).get();
 
