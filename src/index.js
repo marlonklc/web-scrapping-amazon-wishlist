@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const WishlistController = require('./controllers/WishlistController');
 const app = express();

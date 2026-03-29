@@ -1,25 +1,27 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM = process.env.RESEND_FROM || 'onboarding@resend.dev';
+
+const resend = new Resend(RESEND_API_KEY);
 
 const sendMail = async ({ to, subject, html }) => {
-    var transport = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: SMTP_USER,
-            pass: SMTP_PASS
-        }
-    });
+    if (!RESEND_API_KEY) {
+        throw new Error('RESEND_API_KEY is not configured.');
+    }
 
-    const sender = await transport.sendMail({
-        from: 'marlonklc script <marlonklc@script.com>',
+    const { data, error } = await resend.emails.send({
+        from: RESEND_FROM,
         to,
         subject,
         html
-    })
+    });
 
-    return sender;
+    if (error) {
+        throw new Error(error.message || 'Unexpected error sending email with Resend.');
+    }
+
+    return data;
 }
 
 module.exports = {

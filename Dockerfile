@@ -1,4 +1,4 @@
-FROM node:18.15.0-slim
+FROM node:24-slim
 
 # Create and change to the app directory.
 WORKDIR /usr/src/app
@@ -36,7 +36,7 @@ COPY package*.json ./
 
 # Install production dependencies.
 # If you add a package-lock.json, speed your build by switching to 'npm ci'.
-RUN npm ci --only=production \
+RUN npm ci --omit=dev \
     && groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
     && chown -R pptruser:pptruser /home/pptruser \

@@ -103,7 +103,8 @@ module.exports = {
             subject: `wishlist sale: ${wishlistName}`, 
             html: messageHtml
         });
-        console.log('email sent with id %s', (await sendMailResponse).messageId);
+        const mailResult = await sendMailResponse;
+        console.log('email sent with id %s', mailResult.id || mailResult.messageId);
 
         console.log('closing browser...');
         await browser.close();
@@ -137,7 +138,7 @@ module.exports = {
         sortWishlist(itemsFiltered);
 
         console.log('closing browser...');
-        browser.close();
+        await browser.close();
 
         return itemsFiltered;
     },

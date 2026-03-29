@@ -26,7 +26,7 @@ module.exports = {
 
             if (!sendTo) {
                 return res.status(400)
-                    .json(message('sendTo cannot be empty. ex: user@gmail.com'));
+                    .json(message('sendTo cannot be empty. ex: user@email.com'));
             }
 
             if (!zipcode || zipcode.length != 2) {
