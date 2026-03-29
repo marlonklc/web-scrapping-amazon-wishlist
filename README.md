@@ -48,4 +48,4 @@ If zipcode modal fails, the app now saves screenshot and HTML in `PUPPETEER_DEBU
 ```
 
 5. After a few seconds, you will recive an email like that image below:
-![image](https://user-images.githubusercontent.com/9343013/173192258-07b585a4-fe4c-48f7-aa7c-af378213975d.png)
+<img width="1528" height="392" alt="image" src="https://github.com/user-attachments/assets/4a1da5b3-79d7-470f-8910-4b10ad1dfb40" />
