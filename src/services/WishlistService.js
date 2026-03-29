@@ -3,6 +3,20 @@ const { ZIPCODE_DEFAULT, SELECTORS, PRICE_DROP_TYPE } = require('../utils/consta
 const { createHtml, readWishlist } = require('../utils/htmlProcessor');
 const { sendMail } = require('./MailService');
 
+const PUPPETEER_EXECUTABLE_PATH = process.env.PUPPETEER_EXECUTABLE_PATH;
+
+function getBrowserLaunchOptions() {
+    const launchOptions = {
+        args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    };
+
+    if (PUPPETEER_EXECUTABLE_PATH) {
+        launchOptions.executablePath = PUPPETEER_EXECUTABLE_PATH;
+    }
+
+    return launchOptions;
+}
+
 async function fillZipCodeInfo(page, zipcode) {
     const zipcodeOrDefault = zipcode || ZIPCODE_DEFAULT; 
 
@@ -68,9 +82,7 @@ module.exports = {
 
     async createReport({ url, zipcode, sendTo, minPromotionPercentage, minPromotionValue }) {
         console.log('creating browser...')
-        const browser = await puppeteer.launch({
-            args: ["--no-sandbox", "--disable-setuid-sandbox"]
-        });
+        const browser = await puppeteer.launch(getBrowserLaunchOptions());
         const page = await browser.newPage();
 
         console.log('navigation to url %s', url);
@@ -112,9 +124,7 @@ module.exports = {
 
     async exportReport({ url, zipcode, minPromotionPercentage, minPromotionValue }) {
         console.log('creating browser...')
-        const browser = await puppeteer.launch({
-            args: ["--no-sandbox", "--disable-setuid-sandbox"]
-        });
+        const browser = await puppeteer.launch(getBrowserLaunchOptions());
         const page = await browser.newPage();
 
         console.log('navigation to url %s', url);
