@@ -4,3 +4,4 @@ LICENSE
 Procfile
 README.md
 /node_modules
+/debug-artifacts/*

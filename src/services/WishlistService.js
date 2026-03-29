@@ -1,14 +1,49 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs/promises');
+const path = require('path');
 const { ZIPCODE_DEFAULT, SELECTORS, PRICE_DROP_TYPE } = require('../utils/constants');
 const { createHtml, readWishlist } = require('../utils/htmlProcessor');
 const { sendMail } = require('./MailService');
 
 const PUPPETEER_EXECUTABLE_PATH = process.env.PUPPETEER_EXECUTABLE_PATH;
+const PUPPETEER_HEADLESS = process.env.PUPPETEER_HEADLESS !== 'false';
+const PUPPETEER_SLOW_MO = Number(process.env.PUPPETEER_SLOW_MO || 0);
+const PUPPETEER_TIMEOUT_MS = Number(process.env.PUPPETEER_TIMEOUT_MS || 30000);
+const PUPPETEER_DEBUG_DIR = process.env.PUPPETEER_DEBUG_DIR || 'debug-artifacts';
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function createDebugBaseName(label) {
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    return `${stamp}-${label}`;
+}
+
+async function captureDebugArtifacts(page, label) {
+    const baseName = createDebugBaseName(label);
+    const outputDir = path.resolve(process.cwd(), PUPPETEER_DEBUG_DIR);
+    await fs.mkdir(outputDir, { recursive: true });
+
+    const screenshotPath = path.join(outputDir, `${baseName}.png`);
+    const htmlPath = path.join(outputDir, `${baseName}.html`);
+
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+    const html = await page.content();
+    await fs.writeFile(htmlPath, html, 'utf8');
+
+    return { screenshotPath, htmlPath };
+}
 
 function getBrowserLaunchOptions() {
     const launchOptions = {
-        args: ["--no-sandbox", "--disable-setuid-sandbox"]
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        headless: PUPPETEER_HEADLESS
     };
+
+    if (PUPPETEER_SLOW_MO > 0) {
+        launchOptions.slowMo = PUPPETEER_SLOW_MO;
+    }
 
     if (PUPPETEER_EXECUTABLE_PATH) {
         launchOptions.executablePath = PUPPETEER_EXECUTABLE_PATH;
@@ -20,9 +55,33 @@ function getBrowserLaunchOptions() {
 async function fillZipCodeInfo(page, zipcode) {
     const zipcodeOrDefault = zipcode || ZIPCODE_DEFAULT; 
 
-    await page.waitForSelector(SELECTORS.buttonOpenZipCodeModal); 
-    await page.click(SELECTORS.buttonOpenZipCodeModal)
-    await page.waitForSelector(SELECTORS.zipCodeModal, { visible: true });
+    await page.waitForSelector(SELECTORS.buttonOpenZipCodeModal, { visible: true, timeout: PUPPETEER_TIMEOUT_MS });
+    await page.click(SELECTORS.buttonOpenZipCodeModal);
+
+    let modalVisible = true;
+    try {
+        await page.waitForSelector(SELECTORS.zipCodeModal, { visible: true, timeout: PUPPETEER_TIMEOUT_MS / 2 });
+    } catch {
+        modalVisible = false;
+    }
+
+    if (!modalVisible) {
+        await page.evaluate((selector) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.click();
+            }
+        }, SELECTORS.buttonOpenZipCodeModal);
+        await delay(600);
+    }
+
+    try {
+        await page.waitForSelector(SELECTORS.zipCodeModal, { visible: true, timeout: PUPPETEER_TIMEOUT_MS });
+    } catch (err) {
+        const artifacts = await captureDebugArtifacts(page, 'zipcode-modal-timeout');
+        throw new Error(`Waiting for selector ${SELECTORS.zipCodeModal} failed. Screenshot: ${artifacts.screenshotPath}. HTML: ${artifacts.htmlPath}. Original: ${err.message}`);
+    }
+
     await page.focus(SELECTORS.inputZipCode0);
     await page.type(SELECTORS.inputZipCode0, zipcodeOrDefault[0]);
     await page.focus(SELECTORS.inputZipCode1);

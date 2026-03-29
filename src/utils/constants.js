@@ -7,7 +7,7 @@ const PRICE_DROP_TYPE = {
 
 const SELECTORS = {
     buttonOpenZipCodeModal: '#nav-global-location-popover-link',
-    zipCodeModal: '#GLUXZipInputSection',
+    zipCodeModal: '#GLUXSpecifyLocationDiv',
     inputZipCode0: '#GLUXZipUpdateInput_0',
     inputZipCode1: '#GLUXZipUpdateInput_1',
     buttonZipCodeSubmit: '#GLUXZipUpdate-announce',

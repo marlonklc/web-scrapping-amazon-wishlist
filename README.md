@@ -18,9 +18,19 @@ For this personal project I did use of four principal libs/frameworks:
 PORT=3000
 RESEND_API_KEY=<YOUR_RESEND_API_KEY>
 RESEND_FROM=<YOUR_VERIFIED_SENDER_EMAIL>
+PUPPETEER_HEADLESS=true
+PUPPETEER_SLOW_MO=0
+PUPPETEER_TIMEOUT_MS=30000
+PUPPETEER_DEBUG_DIR=debug-artifacts
 ```
 
 `RESEND_FROM` must be a verified sender/domain in your Resend account. If omitted, the service falls back to `onboarding@resend.dev`.
+
+For local debug with visible browser, set:
+- `PUPPETEER_HEADLESS=false`
+- `PUPPETEER_SLOW_MO=200`
+
+If zipcode modal fails, the app now saves screenshot and HTML in `PUPPETEER_DEBUG_DIR` with timestamp.
 
 3. Go to project folder and run `npm install && npm start`. It will install dependencies and run the project.
 
